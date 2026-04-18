@@ -1,6 +1,6 @@
 ---
 name: docx-tracked-changes
-description: Use when editing .docx files and the user wants changes visible in Word's Track Changes / revision mode (red strikethrough for deletions, red underline for insertions, author and timestamp in margin). Also use when user says "修订模式".
+description: Use when editing `.docx` files and the user wants Word-visible revision marks (Track Changes / 修订模式) instead of silent text replacement.
 ---
 
 # Editing .docx with Word Track Changes (Revision Mode)
@@ -64,129 +64,30 @@ Key rules:
 
 ## Core Implementation
 
+The reusable implementation lives in `tracked_change_editor.py` beside this skill. Copy that helper into your working directory when you want code you can import directly.
+
 ```python
-import zipfile, shutil, copy, tempfile
-from lxml import etree
-from datetime import datetime, timezone
+from tracked_change_editor import TrackedChangeEditor
 
-W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
-XML_SPACE = '{http://www.w3.org/XML/1998/namespace}space'
-nsmap = {'w': W}
+editor = TrackedChangeEditor('input.docx', author='Your Name')
 
-def qn(tag):
-    return f'{{{W}}}{tag.split(":")[-1]}'
+for i, p in enumerate(editor.body_paras):
+    if 'target text' in editor._get_para_text(p):
+        editor.replace_paragraph_text(i, 'replacement text')
+        break
 
-class TrackedChangeEditor:
-    def __init__(self, docx_path):
-        self.docx_path = docx_path
-        with zipfile.ZipFile(docx_path, 'r') as z:
-            self.doc_xml = z.read('word/document.xml')
-        self.root = etree.fromstring(self.doc_xml)
-        self.body = self.root.find('w:body', nsmap)
-        self._find_max_id()
-        self._index_body_paragraphs()
-        self.author = 'Claude'
-        self.date = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-
-    def _find_max_id(self):
-        self.max_id = 0
-        for tag in ['ins', 'del', 'rPrChange', 'pPrChange', 'sectPrChange']:
-            for el in self.root.findall(f'.//w:{tag}', nsmap):
-                rid = el.get(qn('w:id'))
-                if rid:
-                    try:
-                        v = int(rid)
-                        if v > self.max_id:
-                            self.max_id = v
-                    except ValueError:
-                        pass
-
-    def _next_id(self):
-        self.max_id += 1
-        return str(self.max_id)
-
-    def _index_body_paragraphs(self):
-        """Index paragraphs after the TOC (w:sdt block)."""
-        self.body_paras = []
-        past_toc = False
-        for child in self.body:
-            tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
-            if tag == 'sdt':
-                past_toc = True
-                continue
-            if past_toc and tag == 'p':
-                self.body_paras.append(child)
-        # Fallback: if no TOC found, index all paragraphs
-        if not self.body_paras:
-            self.body_paras = self.body.findall('w:p', nsmap)
-
-    def _get_para_text(self, p):
-        return ''.join(t.text for t in p.findall('.//w:t', nsmap) if t.text)
-
-    def _get_default_rpr(self, p):
-        for r in p.findall('.//w:r', nsmap):
-            rPr = r.find('w:rPr', nsmap)
-            if rPr is not None:
-                return copy.deepcopy(rPr)
-        return None
-
-    def _collect_direct_runs(self, p):
-        return [ch for ch in p if ch.tag == qn('w:r')]
-
-    def replace_paragraph_text(self, para_index, new_text):
-        """Replace all text in a body paragraph using tracked changes."""
-        p = self.body_paras[para_index]
-        direct_runs = self._collect_direct_runs(p)
-        if not direct_runs:
-            return
-        default_rpr = self._get_default_rpr(p)
-        first_run_pos = list(p).index(direct_runs[0])
-
-        # Wrap original runs in w:del
-        del_elem = etree.Element(qn('w:del'))
-        del_elem.set(qn('w:id'), self._next_id())
-        del_elem.set(qn('w:author'), self.author)
-        del_elem.set(qn('w:date'), self.date)
-        for r in direct_runs:
-            for t in r.findall('w:t', nsmap):
-                t.tag = qn('w:delText')
-            p.remove(r)
-            del_elem.append(r)
-
-        # Create w:ins with new text
-        ins_elem = etree.Element(qn('w:ins'))
-        ins_elem.set(qn('w:id'), self._next_id())
-        ins_elem.set(qn('w:author'), self.author)
-        ins_elem.set(qn('w:date'), self.date)
-        new_run = etree.SubElement(ins_elem, qn('w:r'))
-        if default_rpr is not None:
-            new_run.append(copy.deepcopy(default_rpr))
-        new_t = etree.SubElement(new_run, qn('w:t'))
-        new_t.set(XML_SPACE, 'preserve')
-        new_t.text = new_text
-
-        p.insert(first_run_pos, del_elem)
-        p.insert(first_run_pos + 1, ins_elem)
-
-    def save(self, output_path):
-        doc_xml_new = etree.tostring(
-            self.root, xml_declaration=True, encoding='UTF-8', standalone=True
-        )
-        tmp = tempfile.mktemp(suffix='.docx')
-        with zipfile.ZipFile(self.docx_path, 'r') as zin:
-            with zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as zout:
-                for item in zin.infolist():
-                    if item.filename == 'word/document.xml':
-                        zout.writestr(item, doc_xml_new)
-                    else:
-                        zout.writestr(item, zin.read(item.filename))
-        shutil.move(tmp, output_path)
+editor.save('output.docx')
 ```
+
+`tracked_change_editor.py` handles the important mechanics:
+- scans existing revision IDs before creating new `w:ins` / `w:del` nodes
+- preserves paragraph formatting by cloning the paragraph's default `w:rPr`
+- writes via a safe temporary file before moving to the final `.docx`
 
 ## Usage Flow
 
 ```python
-editor = TrackedChangeEditor('input.docx')
+editor = TrackedChangeEditor('input.docx', author='Your Name')
 
 # Find target paragraph by text content
 for i, p in enumerate(editor.body_paras):
@@ -293,18 +194,19 @@ After saving, open in Word and confirm:
 - [ ] Author name appears in margin annotations
 - [ ] Surrounding paragraphs retain original formatting
 - [ ] No duplicate or nested revision marks
-- [ ] **Count Claude insertions matches expected** — run a verification script to count `w:ins` with `w:author="Claude"` and print each one's first 100 chars. If the count is less than expected, prior edits were lost (see Gotcha 0).
+- [ ] **Count insertions for your chosen author matches expected** — run a verification script to count `w:ins` with your author name and print each one's first 100 chars. If the count is less than expected, prior edits were lost (see Gotcha 0).
 - [ ] **No reference entries in body text** — scan paragraphs before the References heading for any paragraph that looks like a full bibliographic entry (author, year, journal, volume, pages). If found, a reference was inserted in the wrong location (see Gotcha 0b).
 
 ```python
 # Post-save verification snippet
+target_author = 'Codex'
 with zipfile.ZipFile('output.docx') as z:
     xml = z.read('word/document.xml')
 root = etree.fromstring(xml)
-claude_ins = [e for e in root.findall('.//w:ins', nsmap)
-              if e.get(qn('w:author')) == 'Claude']
-print(f'Claude insertions: {len(claude_ins)}')
-for i, ins in enumerate(claude_ins):
+author_ins = [e for e in root.findall('.//w:ins', nsmap)
+              if e.get(qn('w:author')) == target_author]
+print(f'{target_author} insertions: {len(author_ins)}')
+for i, ins in enumerate(author_ins):
     texts = ''.join(t.text for t in ins.findall('.//w:t', nsmap) if t.text)
     print(f'  [{i+1}] {texts[:100]}')
 ```

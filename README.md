@@ -1,67 +1,98 @@
 # docx-tracked-changes
 
-Programmatically edit `.docx` files with **Word Track Changes** (修订模式) — so reviewers see red strikethrough for deletions and red underline for insertions, with author/date metadata in the margin.
+`docx-tracked-changes` is an agent skill for editing `.docx` files while preserving **Microsoft Word Track Changes** markup. It is designed for cases where the user must see insertions, deletions, author names, and timestamps inside Word instead of receiving a silently rewritten document.
 
-## Why
+## Why This Exists
 
-`python-docx` has no API for tracked changes. This skill uses direct OOXML XML manipulation via `lxml` to write proper `w:ins` / `w:del` revision markup that Microsoft Word renders natively.
+`python-docx` does not expose an API for tracked revisions. This repository documents a working OOXML-based approach that writes `w:ins` and `w:del` elements directly, plus the failure modes that matter in real review workflows.
 
-Built and battle-tested during a real academic paper revision workflow (climate finance literature review under peer review).
+This is useful for:
+- academic paper revisions
+- legal or policy document redlines
+- reviewer-facing manuscript updates
+- any agent workflow where visible revision history is required
 
-## What's Inside
+## Repository Layout
 
+```text
+docx-tracked-changes/
+  SKILL.md                   Main skill reference
+  tracked_change_editor.py   Reusable Python helper extracted from the skill
+LICENSE
+README.md
 ```
-skills/docx-tracked-changes/
-  SKILL.md    # Complete reference: XML structure, Python implementation,
-              # usage patterns, and critical gotchas from real-world bugs
-```
 
-The `SKILL.md` contains:
+## What The Skill Covers
 
-- **Dependencies** — `python-docx` + `lxml`, pure Python
-- **OOXML structure** — exact XML format for `w:ins` / `w:del` elements
-- **`TrackedChangeEditor` class** — ready-to-use Python implementation
-- **Critical Gotchas** — 9 documented pitfalls, including:
-  - Multi-step edits silently dropping prior changes
-  - Reference entries inserted into body text instead of References section
-  - Academic citations lost when rewriting paragraphs
-  - Paragraphs with existing tracked changes
-  - Mixed formatting preservation
+- when to use tracked-change editing instead of plain text replacement
+- the OOXML structure for `w:ins`, `w:del`, and `w:delText`
+- a reusable `TrackedChangeEditor` helper
+- operational gotchas from real manuscript revision work
+- verification steps before handing the `.docx` back to a user
 
-## Quick Start
+## Install As A Skill
+
+### Codex
+
+Copy the skill folder into `~/.agents/skills/`:
 
 ```bash
-pip install python-docx lxml
+cp -R docx-tracked-changes ~/.agents/skills/
 ```
+
+### Claude Code
+
+Copy the skill folder into `~/.claude/skills/`:
+
+```bash
+cp -R docx-tracked-changes ~/.claude/skills/
+```
+
+## Use The Python Helper
+
+Install dependencies:
+
+```bash
+python3 -m pip install python-docx lxml
+```
+
+Copy the helper into the directory where your editing script lives:
+
+```bash
+cp docx-tracked-changes/tracked_change_editor.py /path/to/your/project/
+```
+
+Example:
 
 ```python
-from tracked_change_editor import TrackedChangeEditor  # or copy class from SKILL.md
+from tracked_change_editor import TrackedChangeEditor
 
-editor = TrackedChangeEditor('manuscript.docx')
+editor = TrackedChangeEditor("manuscript.docx", author="Your Name")
 
-# Replace a paragraph with tracked changes
-for i, p in enumerate(editor.body_paras):
-    if 'old text' in editor._get_para_text(p):
-        editor.replace_paragraph_text(i, 'new text')
+for i, paragraph in enumerate(editor.body_paras):
+    if "old text" in editor._get_para_text(paragraph):
+        editor.replace_paragraph_text(i, "new text")
         break
 
-editor.save('manuscript_revised.docx')  # Always save to a NEW file
+editor.save("manuscript_revised.docx")
 ```
 
-Open `manuscript_revised.docx` in Word — you'll see the revision marks.
+Open the output in Word and confirm the insertion/deletion marks are visible.
 
-## Designed for AI Agents
+## Limitations
 
-This is a [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code) — a reference document that teaches AI coding agents how to perform tracked-change editing correctly. The gotchas section is specifically written to prevent mistakes that AI agents commonly make when manipulating `.docx` files programmatically.
+- supports body-paragraph edits only
+- does not handle legacy `.doc` files
+- does not refresh Word table-of-contents fields
+- whole-paragraph replacement is safest when formatting is uniform
+- paragraphs with existing tracked revisions may need cleanup first
 
-To use as a Claude Code skill, copy `skills/docx-tracked-changes/` into `~/.claude/skills/`.
+## Review Notes
 
-## Requirements
-
-- Python 3.8+
-- `lxml` >= 5.0
-- `python-docx` >= 1.2.0 (for inspection only)
-- Microsoft Word or compatible editor (to view tracked changes)
+This repository was cleaned up for open-source publication with three important changes:
+- the reusable Python implementation now exists as a real file instead of only a code block inside `SKILL.md`
+- the helper now writes through a safe temporary file rather than `tempfile.mktemp`
+- the README quick start now matches the actual repository contents
 
 ## License
 

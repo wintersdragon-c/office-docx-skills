@@ -1,0 +1,4 @@
+interface:
+  display_name: "Word 公式写作"
+  short_description: "为 Word 文档写入可编辑公式，并统一公式字体、拆行与样式"
+  default_prompt: "Use $word-formula-writing to insert native editable Word equations instead of plain-text formulas."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Word 默认格式"
+  short_description: "为 Word 文档应用默认中英文字体、标题层级与排版规范"
+  default_prompt: "Use $word-default-formatting to apply the default Word layout profile before finalizing the document."

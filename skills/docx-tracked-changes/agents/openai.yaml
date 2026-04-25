@@ -1,0 +1,4 @@
+interface:
+  display_name: "DOCX Tracked Changes"
+  short_description: "Edit DOCX files with Word-visible revisions"
+  default_prompt: "Use $docx-tracked-changes to edit this DOCX with visible Word revisions."

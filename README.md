@@ -1,99 +1,182 @@
-# docx-tracked-changes
+# Office DOCX Skills
 
-`docx-tracked-changes` is an agent skill for editing `.docx` files while preserving **Microsoft Word Track Changes** markup. It is designed for cases where the user must see insertions, deletions, author names, and timestamps inside Word instead of receiving a silently rewritten document.
+Office DOCX Skills is a multi-skill package for LLM-assisted Microsoft Word `.docx` editing. It focuses on Word-visible tracked changes, default Word formatting, and editable Word equations.
 
-## Why This Exists
+The package keeps each capability as its own triggerable skill so agents can use one skill or combine several in the same document workflow.
 
-`python-docx` does not expose an API for tracked revisions. This repository documents a working OOXML-based approach that writes `w:ins` and `w:del` elements directly, plus the failure modes that matter in real review workflows.
+## What It Provides
 
-This is useful for:
-- academic paper revisions
-- legal or policy document redlines
-- reviewer-facing manuscript updates
-- any agent workflow where visible revision history is required
+- visible Microsoft Word Track Changes markup for `.docx` edits
+- default Word formatting for formal documents and Chinese academic papers
+- Word-native editable equation guidance
+- explicit human-trigger examples for Codex and Claude Code
+- package metadata modeled after Superpowers for Codex and Claude Code
 
-## Repository Layout
+## Included Skills
 
 ```text
-docx-tracked-changes/
-  SKILL.md                   Main skill reference
-  tracked_change_editor.py   Reusable Python helper extracted from the skill
-LICENSE
-README.md
+docx-tracked-changes     Edit DOCX files with visible Word revisions.
+word-default-formatting  Apply default Word formatting and Chinese paper layout rules.
+word-formula-writing     Write formulas as editable Word equation objects.
 ```
 
-## What The Skill Covers
-
-- when to use tracked-change editing instead of plain text replacement
-- the OOXML structure for `w:ins`, `w:del`, and `w:delText`
-- a reusable `TrackedChangeEditor` helper
-- operational gotchas from real manuscript revision work
-- verification steps before handing the `.docx` back to a user
-
-## Install As A Skill
+## Installation
 
 ### Codex
 
-Copy the skill folder into `~/.agents/skills/`:
+Codex can use this package through native skill discovery:
 
 ```bash
-cp -R docx-tracked-changes ~/.agents/skills/
+git clone https://github.com/wintersdragon-c/docx-tracked-changes.git ~/.codex/office-docx-skills
+mkdir -p ~/.agents/skills
+ln -s ~/.codex/office-docx-skills/skills ~/.agents/skills/office-docx-skills
+```
+
+Restart Codex after installation.
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.agents\skills"
+cmd /c mklink /J "$env:USERPROFILE\.agents\skills\office-docx-skills" "$env:USERPROFILE\.codex\office-docx-skills\skills"
 ```
 
 ### Claude Code
 
-Copy the skill folder into `~/.claude/skills/`:
+Marketplace status: this package is not currently published to the official Claude plugin marketplace or to a public third-party marketplace. Do not use a package-specific Claude marketplace install command unless a real marketplace channel is published later.
+
+Current manual installation:
 
 ```bash
-cp -R docx-tracked-changes ~/.claude/skills/
+git clone https://github.com/wintersdragon-c/docx-tracked-changes.git ~/.claude/office-docx-skills
+mkdir -p ~/.claude/skills
+ln -s ~/.claude/office-docx-skills/skills ~/.claude/skills/office-docx-skills
 ```
 
-## Use The Python Helper
+Restart Claude Code after installation.
 
-Install dependencies:
+The `.claude-plugin/marketplace.json` file is included for local development and future publication metadata. It is not a claim that the package is already available from a public marketplace.
+
+## Explicit Skill Triggering
+
+Ask the agent to use a named skill directly:
+
+```text
+Use $docx-tracked-changes to edit this DOCX with visible Word revisions.
+Use $word-default-formatting before finalizing this Word document.
+Use $word-formula-writing to convert formulas into editable Word equations.
+```
+
+Chinese examples:
+
+```text
+请使用 docx-tracked-changes 给这个 Word 文档保留修订痕迹。
+请使用 word-default-formatting 按默认 Word 格式整理文档。
+请使用 word-formula-writing 把公式写成可编辑 Word 公式。
+```
+
+## Combining Skills
+
+Multiple skills can be used in the same task:
+
+```text
+Visible revisions only:
+  docx-tracked-changes
+
+Default Word formatting:
+  word-default-formatting
+
+Editable Word formulas:
+  word-formula-writing
+
+Default formatting + formulas:
+  word-default-formatting + word-formula-writing
+
+Default formatting + visible revisions:
+  word-default-formatting + docx-tracked-changes
+
+Formulas + visible revisions:
+  word-formula-writing + docx-tracked-changes
+
+Chinese academic paper or formal document + formulas + revisions:
+  word-default-formatting + word-formula-writing + docx-tracked-changes
+```
+
+Example prompt:
+
+```text
+请同时使用 word-default-formatting、word-formula-writing 和 docx-tracked-changes 处理这个文档。
+```
+
+## Dependencies
+
+Tracked changes:
 
 ```bash
 python3 -m pip install python-docx lxml
 ```
 
-Copy the helper into the directory where your editing script lives:
+Formula-heavy workflows may also need:
 
 ```bash
-cp docx-tracked-changes/tracked_change_editor.py /path/to/your/project/
+python3 -m pip install math2docx latex2mathml mathml2omml
 ```
 
-Example:
+## Verification
 
-```python
-from tracked_change_editor import TrackedChangeEditor
+Verify package structure:
 
-editor = TrackedChangeEditor("manuscript.docx", author="Your Name")
-
-for i, paragraph in enumerate(editor.body_paras):
-    if "old text" in editor._get_para_text(paragraph):
-        editor.replace_paragraph_text(i, "new text")
-        break
-
-editor.save("manuscript_revised.docx")
+```bash
+python3 tests/skill-structure/validate_package.py
 ```
 
-Open the output in Word and confirm the insertion/deletion marks are visible.
+Verify tracked-change DOCX smoke behavior:
+
+```bash
+python3 tests/docx-smoke/test_tracked_changes.py
+```
+
+## Updating
+
+Codex:
+
+```bash
+cd ~/.codex/office-docx-skills
+git pull
+```
+
+Claude Code:
+
+```bash
+cd ~/.claude/office-docx-skills
+git pull
+```
+
+Restart the agent after updating.
+
+## Uninstalling
+
+Codex:
+
+```bash
+rm ~/.agents/skills/office-docx-skills
+rm -rf ~/.codex/office-docx-skills
+```
+
+Claude Code:
+
+```bash
+rm ~/.claude/skills/office-docx-skills
+rm -rf ~/.claude/office-docx-skills
+```
 
 ## Limitations
 
-- supports body-paragraph edits only
-- does not handle legacy `.doc` files
-- does not refresh Word table-of-contents fields
-- whole-paragraph replacement is safest when formatting is uniform
-- paragraphs with existing tracked revisions may need cleanup first
-
-## Review Notes
-
-This repository was cleaned up for open-source publication with three important changes:
-- the reusable Python implementation now exists as a real file instead of only a code block inside `SKILL.md`
-- the helper now writes through a safe temporary file rather than `tempfile.mktemp`
-- the README quick start now matches the actual repository contents
+- `docx-tracked-changes` supports body paragraph tracked changes and does not handle legacy `.doc` files.
+- Word table-of-contents fields still need to be refreshed in Word.
+- `word-formula-writing` provides equation workflow guidance; exact equation insertion depends on the available local Python packages.
+- Claude Code marketplace installation is not documented until a real marketplace target exists.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).

@@ -1,0 +1,1 @@
+please use word-default-formatting to apply the default Word formatting profile

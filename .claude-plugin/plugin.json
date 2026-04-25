@@ -1,0 +1,19 @@
+{
+  "name": "office-docx-skills",
+  "description": "Skills for editing Office DOCX files with Word revisions, default formatting, and editable equations",
+  "version": "0.1.0",
+  "author": {
+    "name": "wintersdragon-c"
+  },
+  "homepage": "https://github.com/wintersdragon-c/docx-tracked-changes",
+  "repository": "https://github.com/wintersdragon-c/docx-tracked-changes",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "docx",
+    "word",
+    "track-changes",
+    "formatting",
+    "equations"
+  ]
+}

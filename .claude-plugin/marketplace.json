@@ -1,0 +1,18 @@
+{
+  "name": "office-docx-skills-dev",
+  "description": "Development marketplace for Office DOCX Skills",
+  "owner": {
+    "name": "wintersdragon-c"
+  },
+  "plugins": [
+    {
+      "name": "office-docx-skills",
+      "description": "Skills for editing Office DOCX files with Word revisions, default formatting, and editable equations",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "wintersdragon-c"
+      }
+    }
+  ]
+}

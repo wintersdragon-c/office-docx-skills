@@ -1,6 +1,6 @@
 ---
 name: docx-tracked-changes
-description: Use when editing `.docx` files and the user wants Word-visible revision marks (Track Changes / 修订模式) instead of silent text replacement.
+description: Use when editing `.docx` or Word documents that need visible Track Changes, revision marks, 修订模式, insertions, deletions, reviewer-facing redlines, or preserved change history.
 ---
 
 # Editing .docx with Word Track Changes (Revision Mode)
@@ -31,6 +31,14 @@ Both are pure-Python installs, no system-level dependencies.
 - User just wants the final text replaced (no revision marks needed) — use `python-docx` directly
 - File is `.doc` (old binary format) — not supported
 - User wants to edit headers/footers/footnotes with tracked changes — this technique covers body paragraphs only
+
+## Works With
+
+This skill can be used alone or together with other skills in `office-docx-skills`.
+
+- Use with `word-default-formatting` when revised text should also follow the package's default Word formatting profile.
+- Use with `word-formula-writing` when formula-related edits should be represented with Word-native editable equations and visible revision marks.
+- If both formatting and formulas matter, use all three skills together.
 
 ## OOXML Tracked-Change Structure
 

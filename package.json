@@ -1,0 +1,6 @@
+{
+  "name": "office-docx-skills",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Skills for editing Office DOCX files with Word revisions, default formatting, and editable equations."
+}

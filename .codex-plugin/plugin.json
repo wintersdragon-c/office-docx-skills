@@ -1,0 +1,39 @@
+{
+  "name": "office-docx-skills",
+  "version": "0.1.0",
+  "description": "Skills for editing Office DOCX files with Word revisions, default formatting, and editable equations.",
+  "author": {
+    "name": "wintersdragon-c",
+    "url": "https://github.com/wintersdragon-c"
+  },
+  "homepage": "https://github.com/wintersdragon-c/docx-tracked-changes",
+  "repository": "https://github.com/wintersdragon-c/docx-tracked-changes",
+  "license": "MIT",
+  "keywords": [
+    "docx",
+    "word",
+    "track-changes",
+    "formatting",
+    "equations",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Office DOCX Skills",
+    "shortDescription": "DOCX skills for Word revisions, formatting, and equations",
+    "longDescription": "Use Office DOCX Skills to guide LLM workflows for editing .docx files, preserving Word-visible tracked changes, applying default Word formatting, and creating editable Word equations.",
+    "developerName": "wintersdragon-c",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use $docx-tracked-changes to edit this DOCX with visible Word revisions.",
+      "Use $word-default-formatting and $word-formula-writing for this Word document."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

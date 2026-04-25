@@ -12,7 +12,7 @@ Enable Office DOCX Skills in Codex via native skill discovery. Clone this reposi
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/wintersdragon-c/docx-tracked-changes.git ~/.codex/office-docx-skills
+   git clone https://github.com/wintersdragon-c/office-docx-skills.git ~/.codex/office-docx-skills
    ```
 
 2. Create the skills symlink:

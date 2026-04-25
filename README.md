@@ -27,7 +27,7 @@ word-formula-writing     Write formulas as editable Word equation objects.
 Codex can use this package through native skill discovery:
 
 ```bash
-git clone https://github.com/wintersdragon-c/docx-tracked-changes.git ~/.codex/office-docx-skills
+git clone https://github.com/wintersdragon-c/office-docx-skills.git ~/.codex/office-docx-skills
 mkdir -p ~/.agents/skills
 ln -s ~/.codex/office-docx-skills/skills ~/.agents/skills/office-docx-skills
 ```
@@ -48,7 +48,7 @@ Marketplace status: this package is not currently published to the official Clau
 Current manual installation:
 
 ```bash
-git clone https://github.com/wintersdragon-c/docx-tracked-changes.git ~/.claude/office-docx-skills
+git clone https://github.com/wintersdragon-c/office-docx-skills.git ~/.claude/office-docx-skills
 mkdir -p ~/.claude/skills
 ln -s ~/.claude/office-docx-skills/skills ~/.claude/skills/office-docx-skills
 ```

@@ -34,6 +34,8 @@ ln -s ~/.codex/office-docx-skills/skills ~/.agents/skills/office-docx-skills
 
 Restart Codex after installation.
 
+After installation, Codex may display these skills with the package namespace, such as `office-docx-skills:word-default-formatting`.
+
 Windows PowerShell:
 
 ```powershell
@@ -159,7 +161,7 @@ Claude Code:
 
 ```bash
 claude plugin marketplace update office-docx-skills-dev
-claude plugin update office-docx-skills
+claude plugin update office-docx-skills@office-docx-skills-dev
 ```
 
 Restart the agent after updating.

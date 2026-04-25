@@ -155,10 +155,14 @@ def validate_docs() -> None:
         "Marketplace status",
         "claude plugin marketplace add https://github.com/wintersdragon-c/office-docx-skills.git",
         "claude plugin install office-docx-skills@office-docx-skills-dev",
+        "office-docx-skills:word-default-formatting",
+        "claude plugin update office-docx-skills@office-docx-skills-dev",
     ]
     for token in required:
         if token not in readme:
             fail(f"README missing {token!r}")
+    if "claude plugin update office-docx-skills\n" in readme:
+        fail("README must update Claude plugin with marketplace-qualified name")
     obsolete_claude_symlink = "ln -s ~/.claude/office-docx-skills/skills ~/.claude/skills/office-docx-skills"
     if obsolete_claude_symlink in readme:
         fail("README must use Claude plugin marketplace install, not ~/.claude/skills symlink")

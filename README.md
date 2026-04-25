@@ -184,3 +184,5 @@ claude plugin marketplace remove office-docx-skills-dev
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+This skill was developed by Dongyao Chen, Guozhi Niu, and Jiayun Lei.

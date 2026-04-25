@@ -1,6 +1,8 @@
 {
   "name": "office-docx-skills-dev",
-  "description": "Development marketplace for Office DOCX Skills",
+  "metadata": {
+    "description": "Development marketplace for Office DOCX Skills"
+  },
   "owner": {
     "name": "wintersdragon-c"
   },

@@ -43,19 +43,23 @@ cmd /c mklink /J "$env:USERPROFILE\.agents\skills\office-docx-skills" "$env:USER
 
 ### Claude Code
 
-Marketplace status: this package is not currently published to the official Claude plugin marketplace or to a public third-party marketplace. Do not use a package-specific Claude marketplace install command unless a real marketplace channel is published later.
-
-Current manual installation:
+Claude Code can install this repository as a plugin marketplace, matching the Superpowers installation model:
 
 ```bash
-git clone https://github.com/wintersdragon-c/office-docx-skills.git ~/.claude/office-docx-skills
-mkdir -p ~/.claude/skills
-ln -s ~/.claude/office-docx-skills/skills ~/.claude/skills/office-docx-skills
+claude plugin marketplace add https://github.com/wintersdragon-c/office-docx-skills.git
+claude plugin install office-docx-skills@office-docx-skills-dev
 ```
 
 Restart Claude Code after installation.
 
-The `.claude-plugin/marketplace.json` file is included for local development and future publication metadata. It is not a claim that the package is already available from a public marketplace.
+For local development, point Claude Code at this checkout instead:
+
+```bash
+claude plugin marketplace add /path/to/office-docx-skills
+claude plugin install office-docx-skills@office-docx-skills-dev
+```
+
+Marketplace status: this package is not currently published to the official Claude plugin marketplace. The repository's `.claude-plugin/marketplace.json` provides the installable marketplace metadata.
 
 ## Explicit Skill Triggering
 
@@ -148,8 +152,8 @@ git pull
 Claude Code:
 
 ```bash
-cd ~/.claude/office-docx-skills
-git pull
+claude plugin marketplace update office-docx-skills-dev
+claude plugin update office-docx-skills
 ```
 
 Restart the agent after updating.
@@ -166,8 +170,8 @@ rm -rf ~/.codex/office-docx-skills
 Claude Code:
 
 ```bash
-rm ~/.claude/skills/office-docx-skills
-rm -rf ~/.claude/office-docx-skills
+claude plugin uninstall office-docx-skills
+claude plugin marketplace remove office-docx-skills-dev
 ```
 
 ## Limitations
@@ -175,7 +179,7 @@ rm -rf ~/.claude/office-docx-skills
 - `docx-tracked-changes` supports body paragraph tracked changes and does not handle legacy `.doc` files.
 - Word table-of-contents fields still need to be refreshed in Word.
 - `word-formula-writing` provides equation workflow guidance; exact equation insertion depends on the available local Python packages.
-- Claude Code marketplace installation is not documented until a real marketplace target exists.
+- Claude Code installation uses this repository as a plugin marketplace; it is not published in Anthropic's official marketplace.
 
 ## License
 

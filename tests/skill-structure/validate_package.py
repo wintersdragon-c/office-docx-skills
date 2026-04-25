@@ -111,6 +111,9 @@ def validate_metadata() -> None:
         fail("Claude plugin author must be an object")
 
     marketplace = validate_json(ROOT / ".claude-plugin" / "marketplace.json")
+    metadata = marketplace.get("metadata", {})
+    if metadata.get("description") != "Development marketplace for Office DOCX Skills":
+        fail("Claude marketplace metadata.description mismatch")
     plugins = marketplace.get("plugins", [])
     if not plugins or plugins[0].get("source") != "./":
         fail("Claude marketplace plugins[0].source must be ./")
@@ -125,13 +128,15 @@ def validate_docs() -> None:
         "Explicit Skill Triggering",
         "Combining Skills",
         "Marketplace status",
+        "claude plugin marketplace add https://github.com/wintersdragon-c/office-docx-skills.git",
+        "claude plugin install office-docx-skills@office-docx-skills-dev",
     ]
     for token in required:
         if token not in readme:
             fail(f"README missing {token!r}")
-    unpublished_install = "/plugin install " + "office-docx-skills@"
-    if unpublished_install in readme:
-        fail("README must not include unpublished Claude marketplace install command")
+    obsolete_claude_symlink = "ln -s ~/.claude/office-docx-skills/skills ~/.claude/skills/office-docx-skills"
+    if obsolete_claude_symlink in readme:
+        fail("README must use Claude plugin marketplace install, not ~/.claude/skills symlink")
     install = (ROOT / ".codex" / "INSTALL.md").read_text(encoding="utf-8")
     for token in ["Installation", "Verify", "Updating", "Uninstalling"]:
         if token not in install:

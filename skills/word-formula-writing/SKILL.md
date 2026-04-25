@@ -59,6 +59,22 @@ Install missing packages in the active project environment before generating for
 python3 -m pip install python-docx lxml math2docx latex2mathml mathml2omml
 ```
 
+## Minimal OMML Helper
+
+For smoke tests or simple generated documents, use `formula_writer.py` beside this skill. It creates a minimal native Word equation (`m:oMath`) that Word can open as an equation object.
+
+```python
+from formula_writer import create_docx_with_omml_formula
+
+create_docx_with_omml_formula(
+    "formula.docx",
+    "x+1=2",
+    body_text="Formula example",
+)
+```
+
+For production-quality equation layout, use a richer converter such as `math2docx` or a LaTeX -> MathML -> OMML flow, then inspect `word/document.xml` for `m:oMath`.
+
 ## Workflow
 
 ### 1. Confirm that Word-native formulas are required
@@ -125,6 +141,12 @@ After generating the document, check at least these points:
 4. body text and formulas use different style layers
 5. the document XML contains math objects rather than only literal formula text
 6. if a heading follows a formula, the gap is visibly comfortable and does not read like one merged block
+
+Run the included smoke test after changing formula helpers:
+
+```bash
+python3 tests/docx-smoke/test_formula_writer.py
+```
 
 ## Relationship To Other Skills
 

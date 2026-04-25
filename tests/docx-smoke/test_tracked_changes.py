@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 import tempfile
 import zipfile
@@ -17,6 +18,7 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parents[2]
 HELPER = ROOT / "skills" / "docx-tracked-changes" / "tracked_change_editor.py"
+VERIFY = ROOT / "skills" / "docx-tracked-changes" / "verify_tracked_changes.py"
 NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 
 
@@ -33,6 +35,9 @@ def main() -> None:
     if not HELPER.exists():
         print(f"Missing helper: {HELPER}")
         sys.exit(1)
+    if not VERIFY.exists():
+        print(f"Missing verifier: {VERIFY}")
+        sys.exit(1)
     with tempfile.TemporaryDirectory() as tmp:
         tmpdir = Path(tmp)
         input_docx = tmpdir / "input.docx"
@@ -45,6 +50,7 @@ def main() -> None:
         editor_cls = load_editor_class()
         editor = editor_cls(input_docx, author="Office DOCX Skills Test")
         editor.replace_paragraph_text(0, "Replacement paragraph.")
+        editor.insert_paragraph_after_with_tracked_change(0, "Inserted tracked paragraph.")
         editor.save(output_docx)
 
         if not output_docx.exists():
@@ -66,8 +72,40 @@ def main() -> None:
         if not root.findall(".//w:delText", NS):
             print("Missing w:delText deleted text")
             sys.exit(1)
+        inserted = [
+            "".join(t.text for t in ins.findall(".//w:t", NS) if t.text)
+            for ins in root.findall(".//w:ins", NS)
+        ]
+        if "Inserted tracked paragraph." not in inserted:
+            print("Missing tracked inserted paragraph")
+            sys.exit(1)
+
+        verified = subprocess.run(
+            [
+                sys.executable,
+                str(VERIFY),
+                str(output_docx),
+                "--author",
+                "Office DOCX Skills Test",
+            ],
+            check=False,
+            text=True,
+            capture_output=True,
+        )
+        if verified.returncode != 0:
+            print(verified.stdout)
+            print(verified.stderr)
+            sys.exit(1)
+        if "insertions: 2" not in verified.stdout:
+            print("Verifier did not report the expected insertion count")
+            print(verified.stdout)
+            sys.exit(1)
 
     print("PASS: tracked changes smoke test")
+
+
+def test_tracked_changes_smoke() -> None:
+    main()
 
 
 if __name__ == "__main__":

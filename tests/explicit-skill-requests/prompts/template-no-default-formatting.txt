@@ -1,0 +1,1 @@
+Edit this DOCX using the provided journal template exactly. Do not apply the default Word formatting profile unless it matches the template.

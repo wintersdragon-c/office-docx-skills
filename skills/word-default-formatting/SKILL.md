@@ -1,6 +1,6 @@
 ---
 name: word-default-formatting
-description: Use when creating or editing `.docx` or Word documents that need default formatting, 默认格式, Chinese academic paper layout, mixed Chinese-English fonts, headings, spacing, margins, or formal Word style cleanup.
+description: Use when creating or editing `.docx` or Word documents that explicitly need the default/house Word format, 默认格式, Chinese academic paper layout, mixed Chinese-English fonts, headings, spacing, margins, or formal style cleanup, and no supplied template or custom style overrides it.
 ---
 
 # Word Default Formatting
@@ -17,7 +17,7 @@ It does not replace the general DOCX workflow and it does not specialize in equa
 Use this skill when:
 
 1. the task is to create or edit a `.docx` file;
-2. the user expects the usual house style or says to use the default Word format;
+2. the user explicitly expects the usual house style, says to use the default Word format, or gives no competing template/style requirement;
 3. the user wants consistent Chinese/English typography, heading hierarchy, paragraph spacing, and page layout;
 4. the task may later be extended to other format profiles such as paper style or referee-response style, but currently should use the default profile.
 
@@ -25,7 +25,8 @@ Do not use this skill alone for:
 
 1. non-Word outputs such as PDF-only, LaTeX-only, or plain text;
 2. tasks centered on editable Word equations; for those, also use `word-formula-writing`;
-3. cases where the user has explicitly provided another template, journal style, school format, or custom layout requirement that overrides the default.
+3. cases where the user has explicitly provided another template, journal style, school format, or custom layout requirement that overrides the default;
+4. requests that mention the default profile only to reject it, avoid it, or compare it against a provided template.
 
 ## General Default Layer
 
@@ -182,6 +183,22 @@ When writing runs or paragraph styles:
 
 The default requirement is mixed typography, not a document-wide single font.
 
+Use `formatting_helpers.py` beside this skill when applying fonts through `python-docx`; setting only `run.font.name` is not enough for Chinese text because Word also needs `w:eastAsia`.
+
+```python
+from formatting_helpers import set_run_mixed_fonts, set_style_mixed_fonts
+
+set_style_mixed_fonts(document.styles["Normal"])
+run = paragraph.add_run("中文 ABC 123")
+set_run_mixed_fonts(run)
+```
+
+After generating a document, inspect `word/document.xml` or `word/styles.xml` and confirm `w:rFonts` has `w:ascii`, `w:hAnsi`, and `w:eastAsia`.
+
+```bash
+python3 tests/docx-smoke/test_default_formatting.py
+```
+
 ### 4. Preserve structure before decoration
 
 Prioritize:
@@ -205,7 +222,7 @@ This skill can be used alone or together with other skills in `office-docx-skill
 
 Use the following routing logic.
 
-1. General `.docx` creation or editing with no special format request:
+1. General `.docx` creation or editing with no special format request and no provided template:
    use `word-default-formatting`, and apply the general default layer
 2. `.docx` creation or editing with formulas:
    use `word-default-formatting` + `word-formula-writing`, and apply the general default layer
@@ -214,7 +231,7 @@ Use the following routing logic.
 4. Chinese academic paper with formulas and no journal-specific template:
    use `word-default-formatting` + `word-formula-writing`, apply the general default layer, and then activate the `Chinese Paper Profile`
 5. `.docx` creation or editing with a user-provided non-default template or journal style:
-   use this skill only if parts of the general default layer still apply
+   do not use this skill unless the user explicitly asks to apply, compare, or merge the package default profile
 6. Formula-only question without Word output:
    do not use this skill
 

@@ -134,10 +134,16 @@ Verify package structure:
 python3 tests/skill-structure/validate_package.py
 ```
 
-Verify tracked-change DOCX smoke behavior:
+Verify DOCX smoke behavior:
 
 ```bash
-python3 tests/docx-smoke/test_tracked_changes.py
+python3 -m pytest tests/docx-smoke
+```
+
+Verify explicit skill triggering and multi-skill behavior in Claude Code:
+
+```bash
+tests/explicit-skill-requests/run-all.sh
 ```
 
 ## Updating

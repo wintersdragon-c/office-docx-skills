@@ -114,6 +114,27 @@ class TrackedChangeEditor:
         paragraph.insert(first_run_pos, deletion)
         paragraph.insert(first_run_pos + 1, insertion)
 
+    def insert_paragraph_after_with_tracked_change(self, para_index: int, new_text: str) -> None:
+        """Insert a new body paragraph whose content appears as a tracked insertion."""
+        anchor = self.body_paras[para_index]
+        new_paragraph = etree.Element(qn("w:p"))
+        insertion = etree.SubElement(new_paragraph, qn("w:ins"))
+        insertion.set(qn("w:id"), self._next_id())
+        insertion.set(qn("w:author"), self.author)
+        insertion.set(qn("w:date"), self.date)
+        new_run = etree.SubElement(insertion, qn("w:r"))
+        default_rpr = self._get_default_rpr(anchor)
+        if default_rpr is not None:
+            new_run.append(copy.deepcopy(default_rpr))
+        new_text_node = etree.SubElement(new_run, qn("w:t"))
+        new_text_node.set(XML_SPACE, "preserve")
+        new_text_node.text = new_text
+
+        body_children = list(self.body)
+        anchor_position = body_children.index(anchor)
+        self.body.insert(anchor_position + 1, new_paragraph)
+        self._index_body_paragraphs()
+
     def save(self, output_path: str | Path) -> None:
         output_path = Path(output_path)
         doc_xml_new = etree.tostring(

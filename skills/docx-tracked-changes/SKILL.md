@@ -87,6 +87,12 @@ for i, p in enumerate(editor.body_paras):
 editor.save('output.docx')
 ```
 
+For section-aware paragraph insertion, use `insert_paragraph_after_with_tracked_change()` after locating the correct section and anchor paragraph:
+
+```python
+editor.insert_paragraph_after_with_tracked_change(ref_entry_index, "New reference entry text")
+```
+
 `tracked_change_editor.py` handles the important mechanics:
 - scans existing revision IDs before creating new `w:ins` / `w:del` nodes
 - preserves paragraph formatting by cloning the paragraph's default `w:rPr`
@@ -153,9 +159,9 @@ for i in range(refs_start_idx + 1, len(editor.body_paras)):
 
 **Why this matters:** Author names appear in both in-text citations and reference entries. Without section-aware search, new reference paragraphs end up in the body text — a corruption that's hard to spot until the user opens Word.
 
-### 0c. Rewriting paragraphs in academic papers: preserve ALL citations
+### 0c. Rewriting academic manuscripts: preserve citations by default
 
-When replacing a paragraph's text, you MUST preserve every `(Author Year)` citation from the original. Academic papers have a reference list that must match in-text citations — dropping a citation orphans the reference entry or weakens the argument.
+When replacing text in academic manuscripts or reference-preserving rewrites, preserve every `(Author Year)` citation from the original unless the user explicitly asks to delete, merge, or rewrite citations. Academic papers have a reference list that should match in-text citations; dropping a citation can orphan the reference entry or weaken the argument.
 
 **Correct approach — extract before rewriting:**
 ```python
@@ -206,15 +212,7 @@ After saving, open in Word and confirm:
 - [ ] **No reference entries in body text** — scan paragraphs before the References heading for any paragraph that looks like a full bibliographic entry (author, year, journal, volume, pages). If found, a reference was inserted in the wrong location (see Gotcha 0b).
 
 ```python
-# Post-save verification snippet
-target_author = 'Codex'
-with zipfile.ZipFile('output.docx') as z:
-    xml = z.read('word/document.xml')
-root = etree.fromstring(xml)
-author_ins = [e for e in root.findall('.//w:ins', nsmap)
-              if e.get(qn('w:author')) == target_author]
-print(f'{target_author} insertions: {len(author_ins)}')
-for i, ins in enumerate(author_ins):
-    texts = ''.join(t.text for t in ins.findall('.//w:t', nsmap) if t.text)
-    print(f'  [{i+1}] {texts[:100]}')
+python3 verify_tracked_changes.py output.docx --author Codex
 ```
+
+`verify_tracked_changes.py` is included beside this skill and prints insertion/deletion counts plus the first 100 characters of each tracked change.

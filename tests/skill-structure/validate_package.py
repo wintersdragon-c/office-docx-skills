@@ -19,6 +19,28 @@ EXPECTED_SKILLS = {
     "word-default-formatting",
     "word-formula-writing",
 }
+EXPECTED_HELPERS = {
+    "docx-tracked-changes": [
+        "tracked_change_editor.py",
+        "verify_tracked_changes.py",
+    ],
+    "word-default-formatting": [
+        "formatting_helpers.py",
+    ],
+    "word-formula-writing": [
+        "formula_writer.py",
+    ],
+}
+EXPECTED_PRESSURE_PROMPTS = {
+    "docx-tracked-changes.txt",
+    "multi-all.txt",
+    "multi-formatting-formulas.txt",
+    "word-default-formatting.txt",
+    "word-formula-writing.txt",
+    "formula-only-no-formatting.txt",
+    "template-no-default-formatting.txt",
+    "tracked-formula-combo.txt",
+}
 LOCAL_PATH_PATTERNS = [
     "/" + "Users/",
     "/" + "home/",
@@ -71,6 +93,9 @@ def validate_skills() -> None:
         prompt = ui.get("interface", {}).get("default_prompt", "")
         if f"${skill}" not in prompt:
             fail(f"{openai_yaml} default_prompt must mention ${skill}")
+        for helper in EXPECTED_HELPERS[skill]:
+            if not (skill_dir / helper).exists():
+                fail(f"{skill}/{helper} missing")
 
 
 def validate_json(path: Path) -> dict:
@@ -143,6 +168,22 @@ def validate_docs() -> None:
             fail(f".codex/INSTALL.md missing {token}")
 
 
+def validate_pressure_fixtures() -> None:
+    prompt_dir = ROOT / "tests" / "explicit-skill-requests" / "prompts"
+    if not prompt_dir.is_dir():
+        fail("explicit skill request prompts directory missing")
+    actual = {path.name for path in prompt_dir.glob("*.txt")}
+    missing = EXPECTED_PRESSURE_PROMPTS - actual
+    if missing:
+        fail(f"missing explicit skill pressure prompts: {sorted(missing)}")
+    runner = ROOT / "tests" / "explicit-skill-requests" / "run-behavior-test.sh"
+    if not runner.exists():
+        fail("explicit skill behavior test runner missing")
+    run_all = ROOT / "tests" / "explicit-skill-requests" / "run-all.sh"
+    if not run_all.exists():
+        fail("explicit skill behavior run-all script missing")
+
+
 def validate_no_local_paths() -> None:
     excluded_parts = {".git", "ref", "__pycache__"}
     for path in ROOT.rglob("*"):
@@ -162,6 +203,7 @@ def main() -> None:
     validate_skills()
     validate_metadata()
     validate_docs()
+    validate_pressure_fixtures()
     validate_no_local_paths()
     print("PASS: office-docx-skills package structure is valid")
 

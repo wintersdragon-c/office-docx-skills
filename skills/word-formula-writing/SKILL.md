@@ -131,6 +131,32 @@ By default:
 5. if a heading follows directly after a formula, prefer a local heading-spacing override instead of inflating the formula paragraph itself
 6. a good default starting point is roughly `10 pt` of heading `space_before` after a display formula, with small page-level adjustment when needed
 
+## Embedded Image And OLE Formulas
+
+Word formulas are not always editable OMML. In imported or older documents, formulas may appear as embedded objects or images. Treat these as formula candidates when they sit inline with equation text, symbol explanations, model definitions, or variable descriptions.
+
+If the user asks which formula objects or relationship artifacts must be preserved before translation or review, answer with this preservation checklist before looking for document files.
+
+Recognize these representations:
+
+1. `m:oMath` and `m:oMathPara` for modern editable Word equations;
+2. `w:object` for legacy embedded equation objects;
+3. `v:shape` and `v:imagedata` for older VML image/object formulas;
+4. `w:drawing` for drawing-based inline equation images;
+5. relationship targets such as WMF, EMF, PNG, or embedded OLE packages.
+
+When preserving image/OLE formulas:
+
+1. inspect `word/document.xml` and related `.rels` files;
+2. classify inline images by paragraph context, dimensions, and neighboring text before treating them as formulas;
+3. clone both the XML node and its required relationship target;
+4. do not blindly preserve relationship IDs across parts or documents, because `rId` values are scoped to a specific DOCX part;
+5. generate new relationship IDs and rewrite `r:embed`, `r:id`, and equivalent attributes when copying across parts or documents;
+6. update `[Content_Types].xml` when copied formula assets introduce new content types;
+7. audit per-pair formula signatures before and after translation.
+
+Formula preservation is not proven by document-level object counts. Compare per-pair formula signatures: object type, relationship target, dimensions, media hash when accessible, target basename, and paragraph/table-cell context.
+
 ## Validation
 
 After generating the document, check at least these points:

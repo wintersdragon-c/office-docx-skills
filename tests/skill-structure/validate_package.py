@@ -181,6 +181,21 @@ def validate_docs() -> None:
             fail(f".codex/INSTALL.md missing {token}")
 
 
+def validate_formula_guidance() -> None:
+    text = (ROOT / "skills" / "word-formula-writing" / "SKILL.md").read_text(encoding="utf-8")
+    required = [
+        "w:object",
+        "v:imagedata",
+        "w:drawing",
+        "relationship IDs",
+        "[Content_Types].xml",
+        "per-pair formula signatures",
+    ]
+    for token in required:
+        if token not in text:
+            fail(f"word-formula-writing missing embedded formula guidance token {token!r}")
+
+
 def validate_pressure_fixtures() -> None:
     prompt_dir = ROOT / "tests" / "explicit-skill-requests" / "prompts"
     if not prompt_dir.is_dir():
@@ -216,6 +231,7 @@ def main() -> None:
     validate_skills()
     validate_metadata()
     validate_docs()
+    validate_formula_guidance()
     validate_pressure_fixtures()
     validate_no_local_paths()
     print("PASS: office-docx-skills package structure is valid")

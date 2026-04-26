@@ -1,0 +1,1 @@
+Use word-formula-writing for this Word document review. The formulas may be editable OMML, legacy OLE equation objects, VML image formulas, or DrawingML inline images. Tell me exactly which OOXML nodes, relationship files, relationship IDs, content types, and per-pair translation audit signals must be preserved before translating the document.

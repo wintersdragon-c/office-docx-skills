@@ -1,0 +1,4 @@
+interface:
+  display_name: "DOCX 格式审查"
+  short_description: "逐段审查 Word 翻译稿的格式、表格、脚注、上标与公式保留情况"
+  default_prompt: "Use $docx-format-audit to review this translated DOCX paragraph by paragraph before finalization."

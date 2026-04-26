@@ -1,0 +1,1 @@
+Use docx-format-audit to review this translated Word document paragraph by paragraph before I delete the Chinese text. Check table cells, fonts, superscripts, footnotes, and formulas.

@@ -1,0 +1,1 @@
+I have a bilingual translated Word .docx and need to delete the Chinese source text quickly. Before cleanup, audit the translation format, table cells, fonts, superscripts, footnotes, editable equations, image formulas, OLE formulas, and English-only readiness. Do not assume any custom DOCX audit skill exists.

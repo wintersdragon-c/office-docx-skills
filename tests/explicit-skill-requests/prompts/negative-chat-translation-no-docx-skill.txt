@@ -1,0 +1,1 @@
+Translate this sentence into English in chat only: 这是一句测试文本。 Do not create or edit any Word or DOCX file.

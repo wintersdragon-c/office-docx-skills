@@ -1,0 +1,1 @@
+Use docx-bilingual-translation, word-default-formatting, word-formula-writing, and docx-format-audit for this Word manuscript. Translate Chinese to English below each paragraph, preserve image formulas and editable formulas, then audit formatting.

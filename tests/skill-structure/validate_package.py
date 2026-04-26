@@ -41,14 +41,27 @@ EXPECTED_HELPERS = {
     ],
 }
 EXPECTED_PRESSURE_PROMPTS = {
+    "docx-bilingual-translation.txt",
+    "docx-format-audit.txt",
     "docx-tracked-changes.txt",
+    "formula-embedded-object-guidance.txt",
     "multi-all.txt",
     "multi-formatting-formulas.txt",
     "word-default-formatting.txt",
     "word-formula-writing.txt",
     "formula-only-no-formatting.txt",
+    "negative-chat-translation-no-docx-skill.txt",
+    "negative-formula-explanation-no-translation.txt",
+    "negative-non-docx-audit-no-format-audit.txt",
     "template-no-default-formatting.txt",
+    "translation-audit-tracked-changes-combo.txt",
+    "translation-format-formula-combo.txt",
     "tracked-formula-combo.txt",
+}
+EXPECTED_BASELINE_NOTES = {
+    "docx-bilingual-translation.md",
+    "docx-format-audit.md",
+    "word-formula-writing-embedded-objects.md",
 }
 LOCAL_PATH_PATTERNS = [
     "/" + "Users/",
@@ -212,6 +225,21 @@ def validate_pressure_fixtures() -> None:
         fail("explicit skill behavior run-all script missing")
 
 
+def validate_baseline_notes() -> None:
+    notes_dir = ROOT / "tests" / "explicit-skill-requests" / "baseline-notes"
+    if not notes_dir.is_dir():
+        fail("explicit skill request baseline notes directory missing")
+    actual = {path.name for path in notes_dir.glob("*.md")}
+    missing = EXPECTED_BASELINE_NOTES - actual
+    if missing:
+        fail(f"missing explicit skill baseline notes: {sorted(missing)}")
+    for note_name in EXPECTED_BASELINE_NOTES:
+        text = (notes_dir / note_name).read_text(encoding="utf-8")
+        for token in ["Observed missing guardrails", "Assistant excerpt"]:
+            if token not in text:
+                fail(f"{note_name} missing baseline note token {token!r}")
+
+
 def validate_no_local_paths() -> None:
     excluded_parts = {".git", "ref", "__pycache__"}
     for path in ROOT.rglob("*"):
@@ -233,6 +261,7 @@ def main() -> None:
     validate_docs()
     validate_formula_guidance()
     validate_pressure_fixtures()
+    validate_baseline_notes()
     validate_no_local_paths()
     print("PASS: office-docx-skills package structure is valid")
 

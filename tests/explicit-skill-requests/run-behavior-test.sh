@@ -118,7 +118,7 @@ if [ "$forbidden_skills" != "-" ]; then
     skill_pattern="\"skill\":\"([^\"]*:)?${skill_name}\""
     if grep -qE "$skill_pattern" "$log_file"; then
       if [ "$forbidden_mode" = "not-applied" ] && [ "$skill_name" = "word-default-formatting" ]; then
-        reject_pattern="default formatting skill explicitly says not to apply|set that aside|will not apply.{0,120}default|won't apply.{0,120}default|do not apply.{0,120}default|default profile.{0,80}(does not|doesn't|should not).{0,80}apply"
+        reject_pattern="default formatting skill explicitly says not to apply|default formatting skill confirms.{0,80}should not be applied|set that aside|will not apply.{0,120}default|won't apply.{0,120}default|do not apply.{0,120}default|default profile.{0,80}(does not|doesn't|should not).{0,80}apply"
         if assistant_text_matches "$reject_pattern"; then
           echo "PASS: Forbidden skill '$skill_name' was checked and default formatting was rejected"
           continue

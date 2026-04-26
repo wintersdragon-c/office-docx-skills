@@ -25,6 +25,22 @@ word-default-formatting     Apply default Word formatting and Chinese paper layo
 word-formula-writing        Write formulas as editable Word equation objects and preserve embedded formula objects.
 ```
 
+## New DOCX Translation Skills
+
+This package now includes two DOCX translation-focused skills:
+
+`docx-bilingual-translation` is for Chinese `.docx` files that need paragraph-by-paragraph Chinese-English output while preserving Word structure. It guides agents to keep the original Chinese source paragraph or table cell content, insert English translations next to the corresponding source content, and preserve Word-native structures such as tables, footnotes, endnotes, superscript/subscript markers, formulas, images, embedded objects, and other non-text runs.
+
+`docx-format-audit` is for reviewing translated DOCX files before delivery or before deleting Chinese source text. It checks Chinese-English paragraph pairing, missing or extra translations, residual Chinese in English-only output, table and cell alignment, formula and embedded object preservation, footnotes/endnotes, headings, numbering, and other structure-sensitive Word formatting issues. Its Chinese removal helper is audit-gated: deletion of Chinese source paragraphs should happen only after bilingual audit passes, and the resulting English-only document is audited again.
+
+Use them together for the full translation workflow:
+
+```text
+1. docx-bilingual-translation creates the bilingual Chinese-English DOCX.
+2. docx-format-audit checks pairing, formatting, and preserved Word structures.
+3. docx-format-audit performs audit-gated Chinese source removal when an English-only final copy is required.
+```
+
 ## Installation
 
 ### Codex

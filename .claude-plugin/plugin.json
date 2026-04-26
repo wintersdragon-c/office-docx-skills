@@ -1,6 +1,6 @@
 {
   "name": "office-docx-skills",
-  "description": "Skills for editing Office DOCX files with Word revisions, default formatting, and editable equations",
+  "description": "Skills for editing Office DOCX files with Word revisions, default formatting, editable equations, bilingual translation, and translation-format audits",
   "version": "0.1.0",
   "author": {
     "name": "wintersdragon-c"
@@ -14,6 +14,8 @@
     "word",
     "track-changes",
     "formatting",
-    "equations"
+    "equations",
+    "bilingual-translation",
+    "translation-audit"
   ]
 }

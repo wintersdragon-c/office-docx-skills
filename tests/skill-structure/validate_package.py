@@ -159,11 +159,52 @@ def validate_metadata() -> None:
 
     marketplace = validate_json(ROOT / ".claude-plugin" / "marketplace.json")
     metadata = marketplace.get("metadata", {})
-    if metadata.get("description") != "Development marketplace for Office DOCX Skills":
+    expected_marketplace_description = (
+        "Development marketplace for Office DOCX Skills with bilingual translation and translation-format audits"
+    )
+    if metadata.get("description") != expected_marketplace_description:
         fail("Claude marketplace metadata.description mismatch")
     plugins = marketplace.get("plugins", [])
     if not plugins or plugins[0].get("source") != "./":
         fail("Claude marketplace plugins[0].source must be ./")
+
+
+def validate_translation_metadata() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    codex_install = (ROOT / ".codex" / "INSTALL.md").read_text(encoding="utf-8")
+    package_json = validate_json(ROOT / "package.json")
+    codex = validate_json(ROOT / ".codex-plugin" / "plugin.json")
+    claude = validate_json(ROOT / ".claude-plugin" / "plugin.json")
+    marketplace = validate_json(ROOT / ".claude-plugin" / "marketplace.json")
+    required_readme = [
+        "docx-bilingual-translation",
+        "docx-format-audit",
+        "bilingual Chinese-English DOCX translation",
+        "translation-format audits",
+    ]
+    for token in required_readme:
+        if token not in readme:
+            fail(f"README missing translation token {token!r}")
+    required_codex_install = [
+        "office-docx-skills:docx-bilingual-translation",
+        "office-docx-skills:docx-format-audit",
+        "office-docx-skills:docx-tracked-changes",
+        "office-docx-skills:word-default-formatting",
+        "office-docx-skills:word-formula-writing",
+    ]
+    for token in required_codex_install:
+        if token not in codex_install:
+            fail(f".codex/INSTALL.md missing expected skill token {token!r}")
+    for label, data in [
+        ("package.json", package_json),
+        (".codex-plugin/plugin.json", codex),
+        (".claude-plugin/plugin.json", claude),
+        (".claude-plugin/marketplace.json", marketplace),
+    ]:
+        text = json.dumps(data, ensure_ascii=False)
+        for token in ["bilingual translation", "translation-format audits"]:
+            if token not in text:
+                fail(f"{label} missing translation metadata token {token!r}")
 
 
 def validate_docs() -> None:
@@ -258,6 +299,7 @@ def validate_no_local_paths() -> None:
 def main() -> None:
     validate_skills()
     validate_metadata()
+    validate_translation_metadata()
     validate_docs()
     validate_formula_guidance()
     validate_pressure_fixtures()

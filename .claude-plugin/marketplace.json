@@ -1,7 +1,7 @@
 {
   "name": "office-docx-skills-dev",
   "metadata": {
-    "description": "Development marketplace for Office DOCX Skills"
+    "description": "Development marketplace for Office DOCX Skills with bilingual translation and translation-format audits"
   },
   "owner": {
     "name": "wintersdragon-c"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "office-docx-skills",
-      "description": "Skills for editing Office DOCX files with Word revisions, default formatting, and editable equations",
+      "description": "Skills for editing Office DOCX files with Word revisions, default formatting, editable equations, bilingual translation, and translation-format audits",
       "version": "0.1.0",
       "source": "./",
       "author": {

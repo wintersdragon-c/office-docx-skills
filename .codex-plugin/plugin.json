@@ -1,7 +1,7 @@
 {
   "name": "office-docx-skills",
   "version": "0.1.0",
-  "description": "Skills for editing Office DOCX files with Word revisions, default formatting, and editable equations.",
+  "description": "Skills for editing Office DOCX files with Word revisions, default formatting, editable equations, bilingual translation, and translation-format audits.",
   "author": {
     "name": "wintersdragon-c",
     "url": "https://github.com/wintersdragon-c"
@@ -15,13 +15,15 @@
     "track-changes",
     "formatting",
     "equations",
+    "bilingual-translation",
+    "translation-audit",
     "skills"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Office DOCX Skills",
-    "shortDescription": "DOCX skills for Word revisions, formatting, and equations",
-    "longDescription": "Use Office DOCX Skills to guide LLM workflows for editing .docx files, preserving Word-visible tracked changes, applying default Word formatting, and creating editable Word equations.",
+    "shortDescription": "DOCX skills for revisions, formatting, equations, bilingual translation, and translation-format audits",
+    "longDescription": "Use Office DOCX Skills to guide LLM workflows for editing .docx files, preserving Word-visible tracked changes, applying default Word formatting, creating editable Word equations, producing bilingual Chinese-English translation drafts, and running translation-format audits before English-only cleanup.",
     "developerName": "wintersdragon-c",
     "category": "Productivity",
     "capabilities": [
@@ -31,7 +33,8 @@
     ],
     "defaultPrompt": [
       "Use $docx-tracked-changes to edit this DOCX with visible Word revisions.",
-      "Use $word-default-formatting and $word-formula-writing for this Word document."
+      "Use $word-default-formatting and $word-formula-writing for this Word document.",
+      "Use $docx-bilingual-translation and $docx-format-audit for a Chinese-English Word translation workflow."
     ],
     "brandColor": "#2563EB",
     "screenshots": []

@@ -1,6 +1,6 @@
 # Office DOCX Skills
 
-Office DOCX Skills is a multi-skill package for LLM-assisted Microsoft Word `.docx` editing. It focuses on Word-visible tracked changes, default Word formatting, and editable Word equations.
+Office DOCX Skills is a multi-skill package for LLM-assisted Microsoft Word `.docx` editing. It focuses on Word-visible tracked changes, default Word formatting, editable Word equations, bilingual Chinese-English DOCX translation, and translation-format audits.
 
 The package keeps each capability as its own triggerable skill so agents can use one skill or combine several in the same document workflow.
 
@@ -9,15 +9,20 @@ The package keeps each capability as its own triggerable skill so agents can use
 - visible Microsoft Word Track Changes markup for `.docx` edits
 - default Word formatting for formal documents and Chinese academic papers
 - Word-native editable equation guidance
+- bilingual Chinese-English DOCX translation with preserved Word structure
+- translation-format audits before deleting Chinese source text
+- embedded image/OLE formula preservation guidance
 - explicit human-trigger examples for Codex and Claude Code
 - package metadata modeled after Superpowers for Codex and Claude Code
 
 ## Included Skills
 
 ```text
-docx-tracked-changes     Edit DOCX files with visible Word revisions.
-word-default-formatting  Apply default Word formatting and Chinese paper layout rules.
-word-formula-writing     Write formulas as editable Word equation objects.
+docx-bilingual-translation  Translate Chinese DOCX content into bilingual Chinese-English Word output.
+docx-format-audit           Audit translated DOCX formatting, pairing, formulas, tables, and English-only cleanup readiness.
+docx-tracked-changes        Edit DOCX files with visible Word revisions.
+word-default-formatting     Apply default Word formatting and Chinese paper layout rules.
+word-formula-writing        Write formulas as editable Word equation objects and preserve embedded formula objects.
 ```
 
 ## Installation
@@ -71,6 +76,8 @@ Ask the agent to use a named skill directly:
 Use $docx-tracked-changes to edit this DOCX with visible Word revisions.
 Use $word-default-formatting before finalizing this Word document.
 Use $word-formula-writing to convert formulas into editable Word equations.
+Use $docx-bilingual-translation to translate this Chinese DOCX into English below each paragraph.
+Use $docx-format-audit to review the translated DOCX before deleting Chinese text.
 ```
 
 Chinese examples:
@@ -79,6 +86,8 @@ Chinese examples:
 请使用 docx-tracked-changes 给这个 Word 文档保留修订痕迹。
 请使用 word-default-formatting 按默认 Word 格式整理文档。
 请使用 word-formula-writing 把公式写成可编辑 Word 公式。
+请使用 docx-bilingual-translation 将这个 Word 文档逐段翻译成中英对照稿。
+请使用 docx-format-audit 在删除中文前逐段审查翻译稿格式、表格、脚注和公式。
 ```
 
 ## Combining Skills
@@ -86,26 +95,26 @@ Chinese examples:
 Multiple skills can be used in the same task:
 
 ```text
-Visible revisions only:
-  docx-tracked-changes
+Bilingual DOCX translation:
+  docx-bilingual-translation
 
-Default Word formatting:
-  word-default-formatting
+Bilingual translation + default formatting:
+  docx-bilingual-translation + word-default-formatting
 
-Editable Word formulas:
-  word-formula-writing
+Bilingual translation + formula preservation:
+  docx-bilingual-translation + word-formula-writing
 
-Default formatting + formulas:
-  word-default-formatting + word-formula-writing
+Bilingual translation + audit:
+  docx-bilingual-translation + docx-format-audit
 
-Default formatting + visible revisions:
-  word-default-formatting + docx-tracked-changes
+English-only cleanup after audit:
+  docx-format-audit
 
-Formulas + visible revisions:
-  word-formula-writing + docx-tracked-changes
+Translation with visible revisions:
+  docx-bilingual-translation + docx-tracked-changes
 
-Chinese academic paper or formal document + formulas + revisions:
-  word-default-formatting + word-formula-writing + docx-tracked-changes
+Full Chinese academic Word translation workflow:
+  docx-bilingual-translation + word-default-formatting + word-formula-writing + docx-format-audit + docx-tracked-changes
 ```
 
 Example prompt:

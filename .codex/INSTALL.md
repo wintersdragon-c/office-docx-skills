@@ -41,10 +41,14 @@ ls ~/.agents/skills/office-docx-skills
 Expected skills:
 
 ```text
-docx-tracked-changes
-word-default-formatting
-word-formula-writing
+office-docx-skills:docx-bilingual-translation
+office-docx-skills:docx-format-audit
+office-docx-skills:docx-tracked-changes
+office-docx-skills:word-default-formatting
+office-docx-skills:word-formula-writing
 ```
+
+Depending on the Codex version and install location, discovered skills may display with the `office-docx-skills:<skill-name>` namespace.
 
 ## Updating
 

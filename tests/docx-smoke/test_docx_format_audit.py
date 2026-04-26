@@ -185,3 +185,64 @@ def test_audit_docx_file_uses_python_docx_openability_for_valid_package() -> Non
         document.save(docx_path)
         report = module.audit_docx_file(docx_path, mode="english-only")
         assert not any("cannot be opened by python-docx" in item.message for item in report.blocking)
+
+
+def load_remove_module():
+    remove_path = ROOT / "skills" / "docx-format-audit" / "remove_chinese_after_audit.py"
+    spec = importlib.util.spec_from_file_location("remove_chinese_after_audit", remove_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_remove_chinese_source_paragraphs_by_pair_id_after_passing_audit() -> None:
+    remove_module = load_remove_module()
+    root = make_doc()
+    removed = remove_module.remove_chinese_source_paragraphs(root, audit_module=load_module())
+    text = "".join(root.xpath(".//w:t/text()", namespaces=NS))
+    assert removed == 1
+    assert "中文公式" not in text
+    assert "English formula" in text
+    assert root.findall(".//m:oMath", NS)
+
+
+def test_remove_chinese_refuses_when_audit_has_blocking_findings() -> None:
+    remove_module = load_remove_module()
+    root = make_doc(formula_in_english=False)
+    try:
+        remove_module.remove_chinese_source_paragraphs(root, audit_module=load_module())
+    except RuntimeError as exc:
+        assert "audit blocking findings" in str(exc)
+    else:
+        raise AssertionError("removal should require a passing audit")
+
+
+def test_removed_document_passes_english_only_audit() -> None:
+    audit_module = load_module()
+    remove_module = load_remove_module()
+    root = make_doc()
+    removed = remove_module.remove_chinese_source_paragraphs(root, audit_module=audit_module)
+    assert removed == 1
+    report = audit_module.audit_document_root(root, mode="english-only")
+    assert report.blocking == []
+
+
+def test_remove_chinese_refuses_when_english_pair_still_contains_chinese_after_removal() -> None:
+    audit_module = load_module()
+    remove_module = load_remove_module()
+    root = make_doc()
+    source_para = root.xpath(".//w:bookmarkStart[@w:name='btx_p1_src']/..", namespaces=NS)[0]
+    english_para = root.xpath(".//w:bookmarkStart[@w:name='btx_p1_en']/..", namespaces=NS)[0]
+    english_para.append(
+        etree.fromstring(f'<w:r xmlns:w="{W}"><w:t>残留中文</w:t></w:r>'.encode("utf-8"))
+    )
+    try:
+        remove_module.remove_chinese_source_paragraphs(root, audit_module=audit_module)
+    except RuntimeError as exc:
+        assert "English-only audit blocking findings" in str(exc)
+        assert source_para.getparent() is not None
+        assert root.xpath(".//w:bookmarkStart[@w:name='btx_p1_src']", namespaces=NS)
+    else:
+        raise AssertionError("removal should require a passing post-removal English-only audit")

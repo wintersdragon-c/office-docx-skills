@@ -1,0 +1,1 @@
+I have a Chinese academic Word .docx with body paragraphs, table cells, author superscripts, footnotes, editable formulas, and image-based formulas. Produce a bilingual Chinese-English review DOCX workflow quickly, then prepare an English-only final DOCX after review. Do not assume any custom DOCX translation skill exists.

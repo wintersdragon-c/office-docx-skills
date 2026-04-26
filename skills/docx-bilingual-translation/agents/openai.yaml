@@ -1,0 +1,4 @@
+interface:
+  display_name: "DOCX 双语翻译"
+  short_description: "将 Word 中文逐段翻译为英文，并保留段落、表格、脚注与公式结构"
+  default_prompt: "Use $docx-bilingual-translation to translate this Word document into bilingual Chinese-English DOCX format."

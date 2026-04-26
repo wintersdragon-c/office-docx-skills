@@ -15,11 +15,15 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_SKILLS = {
+    "docx-bilingual-translation",
     "docx-tracked-changes",
     "word-default-formatting",
     "word-formula-writing",
 }
 EXPECTED_HELPERS = {
+    "docx-bilingual-translation": [
+        "translation_docx_helpers.py",
+    ],
     "docx-tracked-changes": [
         "tracked_change_editor.py",
         "verify_tracked_changes.py",

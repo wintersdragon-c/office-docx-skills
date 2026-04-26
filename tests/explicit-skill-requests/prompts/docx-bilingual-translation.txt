@@ -1,0 +1,1 @@
+Use docx-bilingual-translation for this .docx. Translate all Chinese paragraphs into English, insert each English translation below the Chinese paragraph, translate Chinese inside tables, and preserve Word formatting.
